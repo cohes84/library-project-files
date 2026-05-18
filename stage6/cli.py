@@ -1,18 +1,20 @@
 from library import Library
 from employee_manager import EmployeeManager
 from employee import Librarian, PartTimeStaff, StudentWorker
+from payroll import PayrollSystem
+from exceptions import LibraryError
 
 
 class CLI:
-    # Note: all methods here will eventually be redesigned once we cover
-    # static methods and other tools. For now we are using a class as a
-    # namespace to keep things organised.
+    # Note: this class will be redesigned once we cover static methods.
+    # For now we are using a class as a namespace to keep things organised.
 
     def __init__(self):
-        self.lib = Library("City Library")
-        self.em  = EmployeeManager()
+        self.lib     = Library("City Library")
+        self.em      = EmployeeManager()
+        self.payroll = PayrollSystem()
 
-    # ── Library ─────────────────────────────────────────────────────
+    # ── Library ──────────────────────────────────────────────────────
 
     def do_add_book(self):
         title  = input("Title: ").strip()
@@ -21,7 +23,7 @@ class CLI:
         try:
             self.lib.add_book(title, author, isbn)
             print(f"Added: {title} by {author}")
-        except ValueError as e:
+        except LibraryError as e:
             print(f"Error: {e}")
 
     def do_remove_book(self):
@@ -29,7 +31,7 @@ class CLI:
         try:
             self.lib.remove_book(isbn)
             print(f"Removed: {isbn}")
-        except KeyError as e:
+        except LibraryError as e:
             print(f"Error: {e}")
 
     def do_search_books(self):
@@ -53,7 +55,7 @@ class CLI:
         try:
             self.lib.register_member(name, member_id)
             print(f"Registered: {name}")
-        except ValueError as e:
+        except LibraryError as e:
             print(f"Error: {e}")
 
     def do_all_members(self):
@@ -69,7 +71,7 @@ class CLI:
         try:
             loan = self.lib.checkout(member_id, isbn)
             print(f"Checked out successfully. Due: {loan.due_date}")
-        except (KeyError, ValueError) as e:
+        except LibraryError as e:
             print(f"Error: {e}")
 
     def do_return_book(self):
@@ -78,7 +80,7 @@ class CLI:
         try:
             self.lib.return_book(member_id, isbn)
             print("Returned successfully.")
-        except (KeyError, ValueError) as e:
+        except LibraryError as e:
             print(f"Error: {e}")
 
     def do_status(self):
@@ -104,7 +106,7 @@ class CLI:
         for loan in loans:
             print(f"  {loan}")
 
-    # ── HR ──────────────────────────────────────────────────────────
+    # ── HR ────────────────────────────────────────────────────────────
 
     def do_add_employee(self):
         print("Type: 1=Librarian  2=PartTimeStaff  3=StudentWorker")
@@ -140,51 +142,47 @@ class CLI:
             print(f"  {emp}")
 
     def do_payroll(self):
-        from payroll import PayrollSystem
-        PayrollSystem().calculate_payroll(self.em.get_all())
+        self.payroll.calculate_payroll(self.em.get_all())
 
-    # ── Menus ────────────────────────────────────────────────────────
+    # ── Menu ──────────────────────────────────────────────────────────
 
-    def show_library_menu(self):
-        print("\n--- Library Menu ---")
-        print("1. Add book")
-        print("2. Remove book")
-        print("3. Search books")
-        print("4. Show available books")
-        print("5. Register member")
-        print("6. Show all members")
-        print("7. Checkout book")
-        print("8. Return book")
-        print("9. Library status")
-        print("10. Show overdue loans")
-        print("\n--- HR Menu ---")
+    def show_menu(self):
+        print("\n--- Library ---")
+        print("1.  Add book")
+        print("2.  Remove book")
+        print("3.  Search books")
+        print("4.  Available books")
+        print("5.  Register member")
+        print("6.  All members")
+        print("7.  Checkout")
+        print("8.  Return book")
+        print("9.  Library status")
+        print("10. Overdue loans")
+        print("\n--- HR ---")
         print("11. Add employee")
-        print("12. Show all employees")
+        print("12. All employees")
         print("13. Run payroll")
-        print("\n0. Quit")
+        print("\n0.  Quit")
 
     def run(self):
         while True:
-            self.show_library_menu()
+            self.show_menu()
             choice = input("Choice: ").strip()
-
-            if choice == "0":
-                break
-            elif choice == "1":   self.do_add_book()
-            elif choice == "2":   self.do_remove_book()
-            elif choice == "3":   self.do_search_books()
-            elif choice == "4":   self.do_available_books()
-            elif choice == "5":   self.do_register_member()
-            elif choice == "6":   self.do_all_members()
-            elif choice == "7":   self.do_checkout()
-            elif choice == "8":   self.do_return_book()
-            elif choice == "9":   self.do_status()
-            elif choice == "10":  self.do_overdue()
-            elif choice == "11":  self.do_add_employee()
-            elif choice == "12":  self.do_all_employees()
-            elif choice == "13":  self.do_payroll()
-            else:
-                print("Invalid choice.")
+            if choice == "0":    break
+            elif choice == "1":  self.do_add_book()
+            elif choice == "2":  self.do_remove_book()
+            elif choice == "3":  self.do_search_books()
+            elif choice == "4":  self.do_available_books()
+            elif choice == "5":  self.do_register_member()
+            elif choice == "6":  self.do_all_members()
+            elif choice == "7":  self.do_checkout()
+            elif choice == "8":  self.do_return_book()
+            elif choice == "9":  self.do_status()
+            elif choice == "10": self.do_overdue()
+            elif choice == "11": self.do_add_employee()
+            elif choice == "12": self.do_all_employees()
+            elif choice == "13": self.do_payroll()
+            else: print("Invalid choice.")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import pytest
 from models.book import Book
+from exceptions import BookNotAvailableError, BookAvailableError
 
 
 @pytest.fixture
@@ -14,8 +15,6 @@ def borrowed_book():
     return b
 
 
-# ── Availability ────────────────────────────────────────────────────
-
 def test_new_book_is_available(book):
     assert book.is_available()
 
@@ -27,13 +26,10 @@ def test_return_makes_available(borrowed_book):
     borrowed_book.return_book()
     assert borrowed_book.is_available()
 
-
-# ── Errors ──────────────────────────────────────────────────────────
-
 def test_borrow_unavailable_raises(borrowed_book):
-    with pytest.raises(ValueError):
+    with pytest.raises(BookNotAvailableError):
         borrowed_book.borrow()
 
 def test_return_available_raises(book):
-    with pytest.raises(ValueError):
+    with pytest.raises(BookAvailableError):
         book.return_book()
